@@ -1,0 +1,70 @@
+%matplotlib notebook
+import numpy as np
+import pandas as pd
+import seaborn as sn
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+%matplotlib inline
+
+# lets load a dataset
+from sklearn.datasets import load_boston
+boston_dataset = load_boston()
+
+# lets see what it contains 
+print(boston_dataset.keys())
+
+boston = pd.DataFrame(boston_dataset.data, columns=boston_dataset.feature_names)
+boston.head()
+
+#MEDV is our target variable 
+boston['MEDV'] = boston_dataset.target
+boston.head()
+
+# lets see if there are any missing values
+boston.isnull().sum()
+
+# let plot the histogra of MEDV
+plt.hist(boston['MEDV'], bins=30)
+
+
+# lets create a correlation matrix
+correlation_matrix = boston.corr().round(2)
+sns.heatmap(data=correlation_matrix, annot=True)
+
+# By looking at the correlation matrix we can see that RM has a strong positive correlation with MEDV (0.7)
+# LSTAT has a high negative correlation with MEDV(-0.74)
+
+# we will  use RM and LSTAT as our features.
+
+# lets see how this features changing with MEDV
+
+plt.figure(figsize=(20, 5))
+
+features = ['LSTAT', 'RM']
+target = boston['MEDV']
+
+for i, col in enumerate(features):
+    plt.subplot(1, len(features) , i+1)
+    feat = boston[col]
+    medv = target
+    
+    plt.scatter(feat, medv, marker='o')
+    plt.title(col)
+    plt.xlabel(col)
+    plt.ylabel('MEDV')
+
+# prices increase as the value of RM increases
+#prices dicrease as the value of LSTAT dicreases
+
+
+X = pd.DataFrame(np.c_[boston['LSTAT'], boston['RM']], columns = ['LSTAT','RM'])
+Y = boston['MEDV']
+
+from sklearn.linear_model import LinearRegression
+linreg = LinearRegression()
+linreg.fit(X,Y)
+predict = linreg.predict(X)
+print("Prediction:", predict)
+print("Accuracy:",linreg.score(X,Y))
